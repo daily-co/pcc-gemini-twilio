@@ -6,7 +6,8 @@
 
 """Gemini + Twilio Example: Cascaded models.
 
-TODO: add description.
+A Pipecat bot that uses Google STT, Google TTS, and Gemini LLM in cascade.
+You can connect to this bot using either SmallWebRTC or Twilio.
 
 Required AI services:
 - Google STT (Speech-to-Text)
@@ -14,15 +15,9 @@ Required AI services:
 - Google TTS (Text-to-Speech)
 - Twilio (Voice)
 
-Run the bot locally:
+Run the bot locally using SmallWebRTC::
 
-    Using Twilio::
-
-        uv run bot.py --transport twilio --proxy your_url.ngrok.io
-
-    Using SmallWebRTC::
-
-        uv run bot.py
+    uv run bot-cascade.py
 """
 
 import os
