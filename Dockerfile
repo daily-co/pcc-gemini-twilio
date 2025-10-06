@@ -12,5 +12,9 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --locked --no-install-project --no-dev
 
-# Copy the application code
+# Copy the Gemini Live application code
 COPY ./bot.py bot.py
+
+# Alternatively, deploy the cascade bot
+# COPY ./credentials.json credentials.json
+# COPY ./bot-cascade.py bot.py

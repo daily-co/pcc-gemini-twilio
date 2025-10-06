@@ -1,6 +1,10 @@
 # Gemini Phone Bots
 
-Learn how to connect your Gemini Pipecat bots to a phone number so users can call and have voice conversations. This example shows the complete setup for telephone-based AI interactions using Twilio's telephony services. At the end, you'll be able to talk to your bot on the phone.
+A telephone-based conversational agent built with Pipecat, powered by Google's Gemini APIs and Twilio. Learn how to run and deploy these bots on Pipecat Cloud.
+
+## Try it! 📞
+
+Call **1-970-LIVE-API** (1-970-548-3274) to talk to a Gemini Live Pipecat bot over the phone.
 
 ## Prerequisites
 
