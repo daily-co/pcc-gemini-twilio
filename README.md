@@ -185,7 +185,7 @@ Call the Twilio number you set up earlier to speak with your bot! 🚀
 
 ## What's Next?
 
-**🔧 Customize your bot**: Modify `bot.py` to change personality, add functions, or integrate with your data
-**📚 Learn more**: Check out [Pipecat's docs](https://docs.pipecat.ai/) for advanced features
-**⚙️ Provide custom data**: [Learn how to provide custom data](https://docs.pipecat.ai/guides/telephony/twilio-websockets#custom-parameters-with-twiml) to your bot at run time
-**💬 Get help**: Join [Pipecat's Discord](https://discord.gg/pipecat) to connect with the community
+- **🔧 Customize your bot**: Modify `bot.py` to change personality, add functions, or integrate with your data
+- **📚 Learn more**: Check out [Pipecat's docs](https://docs.pipecat.ai/) for advanced features
+- **⚙️ Provide custom data**: [Learn how to provide custom data](https://docs.pipecat.ai/guides/telephony/twilio-websockets#custom-parameters-with-twiml) to your bot at run time
+- **💬 Get help**: Join [Pipecat's Discord](https://discord.gg/pipecat) to connect with the community
