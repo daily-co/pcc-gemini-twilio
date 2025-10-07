@@ -6,21 +6,16 @@
 
 """Gemini Live + Twilio Example.
 
-TODO: add description.
+A Pipecat bot that uses Google Gemini Live and Twilio.
+You can connect to this bot using either SmallWebRTC or Twilio.
 
 Required AI services:
 - Google Gemini Live (LLM)
 - Twilio (Voice)
 
-Run the bot locally:
+Run the bot locally using SmallWebRTC::
 
-    Using Twilio::
-
-        uv run bot.py --transport twilio --proxy your_url.ngrok.io
-
-    Using SmallWebRTC::
-
-        uv run bot.py
+    uv run bot.py
 """
 
 import os
