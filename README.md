@@ -1,6 +1,8 @@
 # Gemini Phone Bots
 
-A telephone-based conversational agent built with Pipecat, powered by Google's Gemini APIs and Twilio. Learn how to run and deploy these bots on Pipecat Cloud.
+A telephone-based conversational agent built with Pipecat, powered by Google's Gemini APIs and Twilio. This bot plays "Two Truths and a Lie". The bot will provide three statements and you have to guess which one is false.
+
+Learn how to run and deploy these bots on Pipecat Cloud.
 
 ## Try it! 📞
 

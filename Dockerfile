@@ -12,6 +12,8 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --locked --no-install-project --no-dev
 
+COPY ./game_content.py game_content.py
+
 # Copy the Gemini Live application code
 COPY ./bot.py bot.py
 
