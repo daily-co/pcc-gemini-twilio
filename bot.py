@@ -18,25 +18,35 @@ Run the bot locally using SmallWebRTC::
     uv run bot.py
 """
 
+import asyncio
 import os
 
 from dotenv import load_dotenv
 from loguru import logger
+from pipecat.adapters.schemas.function_schema import FunctionSchema
+from pipecat.adapters.schemas.tools_schema import ToolsSchema
 from pipecat.audio.vad.silero import SileroVADAnalyzer
 from pipecat.audio.vad.vad_analyzer import VADParams
-from pipecat.frames.frames import LLMRunFrame, TranscriptionMessage
+from pipecat.frames.frames import EndTaskFrame, LLMRunFrame, TranscriptionMessage
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.runner import PipelineRunner
 from pipecat.pipeline.task import PipelineParams, PipelineTask
 from pipecat.processors.aggregators.openai_llm_context import OpenAILLMContext
+from pipecat.processors.frame_processor import FrameDirection
+from pipecat.processors.frameworks.rtvi import RTVIConfig, RTVIObserver, RTVIProcessor
 from pipecat.processors.transcript_processor import TranscriptProcessor
 from pipecat.runner.types import RunnerArguments
 from pipecat.runner.utils import create_transport
 from pipecat.services.gemini_multimodal_live.gemini import GeminiMultimodalLiveLLMService
+from pipecat.services.llm_service import FunctionCallParams
 from pipecat.transports.base_transport import BaseTransport, TransportParams
 from pipecat.transports.websocket.fastapi import FastAPIWebsocketParams
 
+from game_content import GameContent
+
 load_dotenv(override=True)
+
+NUM_ROUNDS = 4
 
 # We store functions so objects (e.g. SileroVADAnalyzer) don't get
 # instantiated. The function will be called when the desired transport gets
@@ -55,19 +65,92 @@ transport_params = {
 }
 
 
+# Define the end_game function handler (needs access to task)
+async def end_game_handler(params: FunctionCallParams):
+    """Handle end_game function call by pushing EndTaskFrame to end the conversation."""
+    logger.info("Game ended - pushing EndTaskFrame")
+    await params.result_callback({"status": "game_ended"})
+    # TODO: Remove this once we handle frame queueing more gracefully
+    await asyncio.sleep(3)
+    # Push EndTaskFrame to gracefully end the task
+    await params.llm.push_frame(EndTaskFrame(), FrameDirection.UPSTREAM)
+
+
 async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     logger.info(f"Starting bot")
 
+    # Generate game rounds (2 truths + 1 lie each)
+    game = GameContent(num_rounds=NUM_ROUNDS)
+    all_rounds = game.get_formatted_rounds()
+
+    # Define end_game function for graceful disconnect
+    end_game_function = FunctionSchema(
+        name="end_game",
+        description=f"Call this function after completing all {NUM_ROUNDS} rounds to end the game and say goodbye to the player",
+        properties={},
+        required=[],
+    )
+
+    tools = ToolsSchema(standard_tools=[end_game_function])
+
     llm = GeminiMultimodalLiveLLMService(
+        # model="models/gemini-2.5-flash-native-audio-preview-09-2025",
         api_key=os.getenv("GOOGLE_API_KEY"),
         voice_id="Charon",  # Puck, Charon, Kore, Fenrir, Aoede, Leda, Orus, and Zephyr
-        system_instruction="You are a friendly AI assistant. Respond naturally and keep your answers conversational.",
+        tools=tools,
+        system_instruction=f"""You are an enthusiastic game show host playing "Two Truths and a Lie."
+
+GAME RULES:
+1. Present three numbered statements - two TRUE, one LIE
+2. Player guesses which is the lie (by number or description)
+3. Reveal answer briefly, then immediately start next round (unless all rounds are complete)
+4. Keep running score
+5. After completing all {NUM_ROUNDS} rounds, call the end_game function to end the game
+
+YOUR STATEMENTS ARE PRE-WRITTEN:
+You must present the statements EXACTLY as written below, in order. Do not make up your own statements.
+Each round shows which statement is the lie.
+
+{all_rounds}
+
+PRESENTATION STYLE:
+- Read each statement naturally and enthusiastically
+- Present all three statements before asking for their guess
+- After each guess, briefly reveal the answer and move to the next round (unless all rounds are complete)
+- Keep your commentary concise - the statements themselves are already detailed
+
+BE CONCISE FOR:
+- Your intro (1-2 sentences): "Let's play Two Truths and a Lie! I'll give you three facts, you pick the fake. Ready?"
+- Your response to their guess (1-2 sentences): "Correct! Number 2 was the lie. That's 2 points!"
+
+PERSONALITY:
+- Energetic and fun
+- Quick reactions after their guess: "Yes!", "Ooh, so close!", "Nice!"
+- Keep the game moving fast
+- The facts are already rich and interesting, so just present them enthusiastically
+
+ENDING THE GAME:
+After round {NUM_ROUNDS}, give a brief final score and say goodbye in 1-2 sentences, then call the end_game function.
+Example: "...and we're all out of time. You got {NUM_ROUNDS - 1} out of {NUM_ROUNDS}. Nice job. Thanks for playing!"
+
+EXAMPLE FLOW:
+"Let's play Two Truths and a Lie! Ready? Here's round 1:
+[Read the three statements from ROUND 1]
+Which one's the lie?"
+
+[After their guess]
+"That's right! Number 2 was the lie. You're 1 for 1!"
+
+Remember: Present the pre-written statements exactly as shown, keep your commentary brief, and call end_game after round {NUM_ROUNDS}!""",
     )
+
+    # Register the function with the LLM
+    llm.register_function("end_game", end_game_handler)
 
     messages = [
         {
             "role": "user",
-            "content": "Say hello. Then ask if I want to hear a joke.",
+            "content": "Introduce the game in one sentence, then say 'Ready? Here's round 1:' and present the first three statements from ROUND 1.",
         },
     ]
 
@@ -77,9 +160,15 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     # Emit `on_transcript_update` events for the user and assistant spoken responses
     transcript = TranscriptProcessor()
 
+    # Add RTVI to the pipeline to receive events for the SmallWebRTC Prebuilt UI
+    # Only needed for client/server messaging and events
+    # You can remove RTVI processors and observers for Twilio/phone use cases
+    rtvi = RTVIProcessor(config=RTVIConfig(config=[]))
+
     pipeline = Pipeline(
         [
             transport.input(),  # Transport user input
+            rtvi,
             context_aggregator.user(),  # User respones
             transcript.user(),  # User transcript
             llm,  # LLM
@@ -96,6 +185,7 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
             enable_usage_metrics=True,
         ),
         idle_timeout_secs=runner_args.pipeline_idle_timeout_secs,
+        observers=[RTVIObserver(rtvi)],
     )
 
     @transport.event_handler("on_client_connected")
