@@ -77,12 +77,7 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
 
     tools = ToolsSchema(standard_tools=[end_game_function])
 
-    llm = GeminiMultimodalLiveLLMService(
-        # model="models/gemini-2.5-flash-native-audio-preview-09-2025",
-        api_key=os.getenv("GOOGLE_API_KEY"),
-        voice_id="Charon",  # Puck, Charon, Kore, Fenrir, Aoede, Leda, Orus, and Zephyr
-        tools=tools,
-        system_instruction=f"""You are an enthusiastic game show host playing "Two Truths and a Lie."
+    instructions = f"""You are an enthusiastic game show host playing "Two Truths and a Lie."
 
 GAME RULES:
 1. Present three numbered statements - two TRUE, one LIE
@@ -125,7 +120,14 @@ Which one's the lie?"
 [After their guess]
 "That's right! Number 2 was the lie. You're 1 for 1!"
 
-Remember: Present the pre-written statements exactly as shown, keep your commentary brief, and call end_game after round {NUM_ROUNDS}!""",
+Remember: Present the pre-written statements exactly as shown, keep your commentary brief, and call end_game after round {NUM_ROUNDS}!"""
+
+    llm = GeminiMultimodalLiveLLMService(
+        api_key=os.getenv("GOOGLE_API_KEY"),
+        model="models/gemini-2.5-flash-native-audio-preview-09-2025",
+        voice_id="Charon",  # Puck, Charon, Kore, Fenrir, Aoede, Leda, Orus, and Zephyr
+        system_instruction=instructions,
+        tools=tools,
     )
 
     # Register the function with the LLM
@@ -199,6 +201,7 @@ Remember: Present the pre-written statements exactly as shown, keep your comment
 
 async def bot(runner_args: RunnerArguments):
     """Main bot entry point compatible with Pipecat Cloud."""
+    # Krisp is available when deployed to Pipecat Cloud
     if os.environ.get("ENV") != "local":
         from pipecat.audio.filters.krisp_filter import KrispFilter
 
