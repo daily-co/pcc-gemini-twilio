@@ -22,6 +22,7 @@ import asyncio
 import os
 
 from dotenv import load_dotenv
+from google.genai.types import ThinkingConfig
 from loguru import logger
 from pipecat.adapters.schemas.function_schema import FunctionSchema
 from pipecat.adapters.schemas.tools_schema import ToolsSchema
@@ -37,7 +38,7 @@ from pipecat.processors.frameworks.rtvi import RTVIConfig, RTVIObserver, RTVIPro
 from pipecat.processors.transcript_processor import TranscriptProcessor
 from pipecat.runner.types import RunnerArguments
 from pipecat.runner.utils import create_transport
-from pipecat.services.google.gemini_live.llm import GeminiLiveLLMService
+from pipecat.services.google.gemini_live.llm import GeminiLiveLLMService, InputParams
 from pipecat.services.llm_service import FunctionCallParams
 from pipecat.transports.base_transport import BaseTransport, TransportParams
 from pipecat.transports.websocket.fastapi import FastAPIWebsocketParams
@@ -124,10 +125,11 @@ Remember: Present the pre-written statements exactly as shown, keep your comment
 
     llm = GeminiLiveLLMService(
         api_key=os.getenv("GOOGLE_API_KEY"),
-        model="models/gemini-2.5-flash-native-audio-preview-09-2025",
+        model="gemini-2.5-flash-native-audio-preview-09-2025",
         voice_id="Charon",  # Puck, Charon, Kore, Fenrir, Aoede, Leda, Orus, and Zephyr
         system_instruction=instructions,
         tools=tools,
+        params=InputParams(thinking=ThinkingConfig(thinking_budget=0)),
     )
 
     # Register the function with the LLM
