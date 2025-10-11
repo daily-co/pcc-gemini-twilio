@@ -640,7 +640,7 @@ name = "exceptiongroup"
 version = "1.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/0b/9f/a65090624ecf468cdca03533906e7c69ed7588582240cfe7cc9e770b50eb/exceptiongroup-1.3.0.tar.gz", hash = "sha256:b241f5885f560bc56a59ee63ca4c6a8bfa46ae4ad651af316d4e81817bb9fd88", size = 29749, upload-time = "2025-05-10T17:42:51.123Z" }
 wheels = [
@@ -2026,7 +2026,7 @@ wheels = [
 
 [[package]]
 name = "pipecat-ai"
-version = "0.0.89"
+version = "0.0.90"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiofiles" },
@@ -2047,9 +2047,9 @@ dependencies = [
     { name = "soxr" },
     { name = "wait-for2", marker = "python_full_version < '3.12'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4b/66/d5d9a0a7678463202f59507dd81d5dd5b14397ea71170af5292fcfae0846/pipecat_ai-0.0.89.tar.gz", hash = "sha256:f75669264f6ec0bfb2d68a36abe1d546b44be32b6d46b2ea8b39117f6a676e38", size = 10697901, upload-time = "2025-10-08T01:56:52.092Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5b/08/123da763e9cf369d590f6d5c7606e90194eb2b799373815badf5005b2c3f/pipecat_ai-0.0.90.tar.gz", hash = "sha256:6af969d55d5e39dd71a534661877b08a817aada0b9edb116d014b7ea51912393", size = 10704690, upload-time = "2025-10-10T17:23:47.234Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8f/6a/c073098bf967c343d4918c1288105a5f3ac9d534c8d14b17f1680dd5116e/pipecat_ai-0.0.89-py3-none-any.whl", hash = "sha256:c3491c85604bd960a9162b9b1a22802d3848ff52b10fc054b1057347831507de", size = 10362653, upload-time = "2025-10-08T01:56:49.436Z" },
+    { url = "https://files.pythonhosted.org/packages/10/6f/e263b0029c678bd841440610861ae37d0650861a364b92edd9d96f2be102/pipecat_ai-0.0.90-py3-none-any.whl", hash = "sha256:88f54e969ba24d19aeec5b3fb776249fa4d4e11e55875946ae4436cc60880a9c", size = 10375049, upload-time = "2025-10-10T17:23:44.8Z" },
 ]
 
 [package.optional-dependencies]
@@ -2106,7 +2106,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "pipecat-ai", extras = ["webrtc", "websocket", "silero", "google", "local-smart-turn-v3", "runner"], specifier = ">=0.0.89" },
+    { name = "pipecat-ai", extras = ["webrtc", "websocket", "silero", "google", "local-smart-turn-v3", "runner"], specifier = ">=0.0.90" },
     { name = "pipecatcloud", specifier = ">=0.2.6" },
 ]
 
